@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="./stylesheets/style.css" rel="stylesheet">
+    <title>Socket.IO chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font: 13px Helvetica, Arial;
+        }
+
+        #jumbotron1 {
+            margin: 0px;
+            padding: 10px;
+            font-size: 50px;
+            text-align: center;
+            background-color: lightblue;
+        }
+
+        form {
+            background: #000;
+            padding: 3px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        form input {
+            border: 0;
+            padding: 10px;
+            width: 90%;
+            margin-right: .5%;
+        }
+
+        form button {
+            width: 9%;
+            background: rgb(130, 224, 255);
+            border: none;
+            padding: 10px;
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #messages li {
+            padding: 5px 10px;
+        }
+
+        #messages li:nth-child(odd) {
+            background: #eee;
+        }
+
+        .userName {
+            color: blue;
+            font-size: 12pt;
+        }
+
+        .msg {
+            background-color: lightblue;
+            color: black;
+            font-size: 16pt;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="row">
+        <div class="col-6">
+            <div style="height: 100vh" id="map"></div>
+        </div>
+        <div class="col-6">
+            <!-- <div class=“jumbotron” id="jumbotron1"></div> -->
+            <ul id="messages"></ul>
+            <form action="">
+                <input id="m" autocomplete="off" /><button>Send</button>
+            </form>
+        </div>
+    </div>
+</body>
+<script src="/js/chat.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+
+<script>
+    let username;
+
+    $.get("/api/user_data").then(function (data) {
+        $(".member-name").text(data.email);
+        username = data.username;
+        console.log(data);
+        console.log(username);
+    });
+
+    // $.get("/chat/:sport").then(function (req) {
+    //     console.log(req.params)
+    //     //$("#jumbotron1").text(sport);
+    // });
+
+    $(function () {
+        var socket = io();
+        // Sending chat message
+        $('form').submit(function (e) {
+            e.preventDefault(); // prevents page reloading
+            let chatMsg = {
+                "sender": username,
+                "msg": $('#m').val()
+            }
+            console.log(`Sent Message: ${JSON.stringify(chatMsg)}`);
+            socket.emit('chat message', JSON.stringify(chatMsg));
+            $('#m').val('');
+            return false;
+        });
+        // Receiving chat message to show
+        socket.on('chat message', function (msg) {
+            // let chatMsg = {
+            //     "sender": "Fred",
+            //     "msg": msg
+            // }
+            let chatMsg = JSON.parse(msg);
+            $('#messages').append($(`<div class="userName">`).append(`${chatMsg.sender}:`));
+            $('#messages').append($('<p class="msg">').text(chatMsg.msg));
+        });
+    });
+</script>
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBbGlgrbYUOVKntBDbCnVlEZrVYAA7VYpY&libraries=places&callback=initMap"
+    async defer></script>
+
+</html>
