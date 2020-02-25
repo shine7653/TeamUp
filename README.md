@@ -1,5 +1,7 @@
 # Sport squad
 
+<img src="screenshot/main.png">
+
 ## Sports
 
 User Stories
