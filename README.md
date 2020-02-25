@@ -1,6 +1,6 @@
 # Sport squad
 
-<img src="screenshot/main.png">
+<img src="screenshots/main.png">
 
 ## Sports
 
